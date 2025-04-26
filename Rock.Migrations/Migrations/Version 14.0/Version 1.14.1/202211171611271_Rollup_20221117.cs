@@ -76,7 +76,7 @@ namespace Rock.Migrations
             {
                 try
                 {
-                    var versionParts = database.VersionNumber.Split( '.' );
+                    var versionParts = (database.VersionNumber ?? "15.0").Split( '.' );
                     int.TryParse( versionParts[0], out var majorVersion );
                     if ( majorVersion > 13 )
                     {
