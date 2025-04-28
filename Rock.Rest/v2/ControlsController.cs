@@ -6032,6 +6032,47 @@ namespace Rock.Rest.v2
 
         #endregion
 
+        #region Groups Picker
+
+        /// <summary>
+        /// Gets all groups based on active or inactive status in the groups picker.
+        /// </summary>
+        /// <param name="options">The options that describe which items to load.</param>
+        /// <returns>A List of <see cref="TreeItemBag"/> objects that represent the groups.</returns>
+        [HttpPost]
+        [Route("GroupPickerGetAllGroups")]
+        [Authenticate]
+        [ExcludeSecurityActions(Security.Authorization.EXECUTE_WRITE, Security.Authorization.EXECUTE_UNRESTRICTED_READ, Security.Authorization.EXECUTE_UNRESTRICTED_WRITE)]
+        [ProducesResponseType(HttpStatusCode.OK, Type = typeof(List<TreeItemBag>))]
+        [ProducesResponseType(HttpStatusCode.NotFound)]
+        [Rock.SystemGuid.RestActionGuid("f1c20ab5-3b4d-4014-9264-76b067d79b00")]
+        public IActionResult GroupPickerGetAllGroups([FromBody] GroupPickerGetAllGroupsOptionsBag options)
+        {
+            using (var rockContext = new RockContext())
+            {
+                var groupService = new GroupService(rockContext);
+
+                var groups = groupService.Queryable()
+                    .Where(g => options.IncludeInactiveGroups || g.IsActive)
+                    .Select(g => new TreeItemBag
+                    {
+                        Value = g.Guid.ToString(),
+                        Text = g.Name,
+                        IsActive = g.IsActive
+                    })
+                    .ToList();
+
+                if (!groups.Any())
+                {
+                    return NotFound();
+                }
+
+                return Ok(groups);
+            }
+        }
+
+        #endregion
+
         #region Group Role Picker
 
         /// <summary>
